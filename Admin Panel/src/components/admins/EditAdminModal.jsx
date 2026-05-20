@@ -1,0 +1,226 @@
+/**
+ * Edit Admin Modal
+ * Form for updating an existing admin user
+ */
+
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { updateAdmin } from '../../services/adminService.js';
+
+const EditAdminModal = ({ isOpen, onClose, admin, onUpdated }) => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    username: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState(null);
+
+  useEffect(() => {
+    if (admin && isOpen) {
+      setFormData({
+        firstName: admin.firstName || '',
+        lastName: admin.lastName || '',
+        phoneNumber: admin.phoneNumber || '',
+        username: admin.username || '',
+        password: '',
+      });
+      setErrors({});
+      setServerError(null);
+    }
+  }, [admin, isOpen]);
+
+  const handleClose = () => {
+    if (submitting) return;
+    onClose();
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+    setServerError(null);
+  };
+
+  const validate = () => {
+    const next = {};
+    if (!formData.firstName.trim()) next.firstName = 'Ism kiritilishi shart';
+    if (!formData.lastName.trim()) next.lastName = 'Familiya kiritilishi shart';
+    if (!formData.phoneNumber.trim()) {
+      next.phoneNumber = 'Telefon raqam kiritilishi shart';
+    } else if (!/^\+998\d{9}$/.test(formData.phoneNumber.trim())) {
+      next.phoneNumber = "Format: +998XXXXXXXXX (9 ta raqam)";
+    }
+    if (!formData.username.trim()) {
+      next.username = 'Username kiritilishi shart';
+    } else if (formData.username.trim().length < 3) {
+      next.username = 'Username kamida 3 ta belgi';
+    }
+    if (formData.password && formData.password.length < 6) {
+      next.password = 'Parol kamida 6 ta belgi';
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError(null);
+    if (!validate()) return;
+
+    const payload = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      phoneNumber: formData.phoneNumber.trim(),
+      username: formData.username.trim(),
+    };
+    if (formData.password) {
+      payload.password = formData.password;
+    }
+
+    try {
+      setSubmitting(true);
+      const updated = await updateAdmin(admin._id, payload);
+      onUpdated?.(updated);
+      onClose();
+    } catch (err) {
+      setServerError(err?.message || 'Adminni yangilashda xatolik');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && admin && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          onClick={handleClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Adminni tahrirlash</h3>
+                <p className="text-sm text-gray-500 mt-0.5">@{admin.username}</p>
+              </div>
+              <button
+                onClick={handleClose}
+                disabled={submitting}
+                className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+              {serverError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-lg">
+                  {serverError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ism</label>
+                  <input
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.firstName ? 'border-red-300' : 'border-gray-300'}`}
+                  />
+                  {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Familiya</label>
+                  <input
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.lastName ? 'border-red-300' : 'border-gray-300'}`}
+                  />
+                  {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefon raqam</label>
+                <input
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.phoneNumber ? 'border-red-300' : 'border-gray-300'}`}
+                />
+                {errors.phoneNumber && <p className="mt-1 text-xs text-red-600">{errors.phoneNumber}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  autoComplete="off"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.username ? 'border-red-300' : 'border-gray-300'}`}
+                />
+                {errors.username && <p className="mt-1 text-xs text-red-600">{errors.username}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Yangi parol <span className="text-gray-400 font-normal">(ixtiyoriy)</span>
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                  className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.password ? 'border-red-300' : 'border-gray-300'}`}
+                  placeholder="O'zgartirmaslik uchun bo'sh qoldiring"
+                />
+                {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Saqlanmoqda...' : 'Saqlash'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default EditAdminModal;
