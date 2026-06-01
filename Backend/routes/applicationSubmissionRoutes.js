@@ -24,9 +24,17 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: includeAnswers
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: >
+ *           true bo‘lsa, har bir arizaning answers (rasmlar/base64) ham qaytadi — juda katta va sekin.
+ *           Standart ro‘yxatda answers yo‘q; to‘liq ma’lumot uchun GET /api/application-submissions/{id}.
  *     responses:
  *       200:
- *         description: Ro‘yxat
+ *         description: Ro‘yxat (standart — answers siz, tez)
  *         content:
  *           application/json:
  *             schema:

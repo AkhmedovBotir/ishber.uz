@@ -25,6 +25,10 @@ Matnlar `utils/submissionSmsTemplates.js` da yig‘iladi: vakansiya sarlavhasi v
 
 Shuningdek mavjud: `GET /api/vacancies/:vacancyId/application-submissions` (bir xil ma’lumot).
 
+**Tezlik:** nomzodlar formada **rasm/faylni base64** (`data:image/jpeg;base64,...`) sifatida saqlaydi (~1–3 MB har bir ariza). Shuning uchun ro‘yxat endpointi **standart ravishda `answers` maydonini qaytarmaydi** (telefon, status, `contactLog`, va hokazo yetarli). To‘liq forma javoblari (rasmlar bilan): `GET /api/application-submissions/:id`.
+
+Agar eski xatti-harakat kerak bo‘lsa (sekin): `?includeAnswers=true`
+
 ### Bitta ariza
 
 `GET /api/application-submissions/:id`  

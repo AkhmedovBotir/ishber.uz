@@ -24,9 +24,15 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: includeAnswers
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Standart false — answers (base64 fayllar) ro‘yxatdan chiqariladi
  *     responses:
  *       200:
- *         description: List of submissions
+ *         description: List of submissions (answers omitted by default)
  *         content:
  *           application/json:
  *             schema:

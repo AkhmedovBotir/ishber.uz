@@ -33,13 +33,24 @@ async function getVacancyTitleById(vacancyId) {
   return v?.title || "Vakansiya";
 }
 
-async function listSubmissionsByVacancyId(vacancyId) {
-  validateObjectId(vacancyId);
+function parseIncludeAnswersFlag(value) {
+  if (value === true || value === 1) {
+    return true;
+  }
+  const s = String(value ?? "").trim().toLowerCase();
+  return s === "true" || s === "1" || s === "yes";
+}
 
-  const [list, vacancyTitle] = await Promise.all([
-    ApplicationSubmission.find({ vacancyId }).sort({ createdAt: -1 }).lean(),
-    getVacancyTitleById(vacancyId),
-  ]);
+async function listSubmissionsByVacancyId(vacancyId, options = {}) {
+  validateObjectId(vacancyId);
+  const includeAnswers = parseIncludeAnswersFlag(options.includeAnswers);
+
+  let query = ApplicationSubmission.find({ vacancyId }).sort({ createdAt: -1 });
+  if (!includeAnswers) {
+    query = query.select("-answers");
+  }
+
+  const [list, vacancyTitle] = await Promise.all([query.lean(), getVacancyTitleById(vacancyId)]);
 
   return list.map((s) => ({
     ...s,
@@ -67,6 +78,7 @@ async function createSubmission(payload) {
 
 module.exports = {
   allocateSubmissionNumber,
+  parseIncludeAnswersFlag,
   listSubmissionsByVacancyId,
   createSubmission,
   getVacancyTitleById,

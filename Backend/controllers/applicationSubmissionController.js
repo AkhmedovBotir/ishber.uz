@@ -1,7 +1,9 @@
 const applicationSubmissionService = require("../services/applicationSubmissionService");
 
 async function listByVacancyId(req, res) {
-  const items = await applicationSubmissionService.listSubmissionsByVacancyId(req.params.vacancyId);
+  const items = await applicationSubmissionService.listSubmissionsByVacancyId(req.params.vacancyId, {
+    includeAnswers: req.query.includeAnswers,
+  });
   res.json(items);
 }
 
