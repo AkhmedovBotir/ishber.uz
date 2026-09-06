@@ -14,14 +14,17 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/application-submissions/vacancy/{vacancyId}:
+ * /api/application-submissions:
  *   get:
- *     summary: Vakansiya bo‘yicha barcha arizalar
+ *     summary: Barcha vakansiyalar bo‘yicha arizalar (nomzodlar)
  *     tags: [ApplicationSubmissions]
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: vacancyId
- *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
  *         schema:
  *           type: string
  *       - in: query
@@ -29,12 +32,9 @@ const router = express.Router();
  *         schema:
  *           type: boolean
  *           default: false
- *         description: >
- *           true bo‘lsa, har bir arizaning answers (rasmlar/base64) ham qaytadi — juda katta va sekin.
- *           Standart ro‘yxatda answers yo‘q; to‘liq ma’lumot uchun GET /api/application-submissions/{id}.
  *     responses:
  *       200:
- *         description: Ro‘yxat (standart — answers siz, tez)
+ *         description: Barcha arizalar ro‘yxati
  *         content:
  *           application/json:
  *             schema:
@@ -42,6 +42,8 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/ApplicationSubmission'
  */
+router.get("/", applicationSubmissionController.listAll);
+
 router.get("/vacancy/:vacancyId", applicationSubmissionController.listByVacancyId);
 
 /**
@@ -170,5 +172,34 @@ router.patch("/:id/contact", applicationSubmissionAdminController.markContacted)
  *               $ref: '#/components/schemas/ApplicationSubmission'
  */
 router.post("/:id/contact-notes", applicationSubmissionAdminController.addContactNote);
+
+/**
+ * @swagger
+ * /api/application-submissions/{id}/candidate:
+ *   patch:
+ *     summary: Nomzod qilib olish yoki nomzodlikdan chiqarish
+ *     tags: [ApplicationSubmissions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isCandidate:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApplicationSubmission'
+ */
+router.patch("/:id/candidate", applicationSubmissionAdminController.toggleCandidate);
 
 module.exports = router;

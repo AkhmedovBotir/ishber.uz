@@ -3,8 +3,10 @@
  */
 
 import { useState } from 'react';
+import { useModal } from '../../context/ModalContext.jsx';
 
 const ApplicationFormLinkBlock = ({ url, variant = 'card' }) => {
+  const { alert: showAlert } = useModal();
   const [copied, setCopied] = useState(false);
 
   if (!url) return null;
@@ -15,8 +17,11 @@ const ApplicationFormLinkBlock = ({ url, variant = 'card' }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // eslint-disable-next-line no-alert
-      alert("Buferga nusxalab bo'lmadi");
+      showAlert({
+        title: 'Nusxalashda xatolik',
+        message: 'Buferga nusxalab bo‘lmadi',
+        type: 'error',
+      });
     }
   };
 

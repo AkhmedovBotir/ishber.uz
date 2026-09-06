@@ -15,6 +15,7 @@ import DeleteVacancyModal from '../components/vacancies/DeleteVacancyModal.jsx';
 import ApplicationFormModal from '../components/applicationForms/ApplicationFormModal.jsx';
 import ApplicationFormLinkBlock from '../components/vacancies/ApplicationFormLinkBlock.jsx';
 import { formatUzDate } from '../utils/uzDateFormat.js';
+import { useModal } from '../context/ModalContext.jsx';
 
 const deltaToPlainText = (delta) => {
   if (!delta || !Array.isArray(delta.ops)) return '';
@@ -26,6 +27,7 @@ const deltaToPlainText = (delta) => {
 };
 
 const Vacancies = () => {
+  const { alert: showAlert } = useModal();
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -170,8 +172,11 @@ const Vacancies = () => {
       setVacancies((prev) =>
         prev.map((v) => (v._id === vacancy._id ? { ...v, isOpen: !newStatus } : v))
       );
-      // eslint-disable-next-line no-alert
-      alert(err?.message || 'Statusni yangilab bo\'lmadi');
+      showAlert({
+        title: 'Xatolik',
+        message: err?.message || 'Statusni yangilab bo‘lmadi',
+        type: 'error',
+      });
     } finally {
       setTogglingIds((prev) => {
         const next = new Set(prev);

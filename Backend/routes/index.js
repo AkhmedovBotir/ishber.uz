@@ -6,6 +6,10 @@ const applicationSubmissionRoutes = require("./applicationSubmissionRoutes");
 const interviewRoutes = require("./interviewRoutes");
 const publicRoutes = require("./publicRoutes");
 const vacancyRoutes = require("./vacancyRoutes");
+const settingsRoutes = require("./settingsRoutes");
+const learningMaterialRoutes = require("./learningMaterialRoutes");
+const finalExamRoutes = require("./finalExamRoutes");
+const certificateRoutes = require("./certificateRoutes");
 
 const router = express.Router();
 
@@ -20,5 +24,10 @@ router.use("/vacancies", vacancyRoutes);
 router.use("/application-forms", applicationFormRoutes);
 router.use("/application-submissions", applicationSubmissionRoutes);
 router.use("/interviews", interviewRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/learning-materials", learningMaterialRoutes);
+router.use("/final-exams", finalExamRoutes);
+router.use("/certificates", certificateRoutes);
 
 module.exports = router;
+

@@ -3,7 +3,7 @@
  * Base API configuration and request utilities
  */
 
-const BASE_URL = 'http://localhost:5000/api'
+const BASE_URL = 'https://api.ishber.uz/api'
 
 /**
  * Create headers with optional authorization

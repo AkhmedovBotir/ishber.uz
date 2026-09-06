@@ -6,21 +6,27 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { SidebarProvider } from './context/SidebarContext.jsx';
+import { ModalProvider } from './context/ModalContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import Login from './pages/Login.jsx';
 import DashboardHome from './pages/DashboardHome.jsx';
 import Admins from './pages/Admins.jsx';
 import Vacancies from './pages/Vacancies.jsx';
+import Candidates from './pages/Candidates.jsx';
 import ApplicationSubmissions from './pages/ApplicationSubmissions.jsx';
 import Interviews from './pages/Interviews.jsx';
+import LearningMaterials from './pages/LearningMaterials.jsx';
+import Certificates from './pages/Certificates.jsx';
+import Settings from './pages/Settings.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 function App() {
   return (
     <AuthProvider>
       <SidebarProvider>
-        <BrowserRouter>
+        <ModalProvider>
+          <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
@@ -43,12 +49,25 @@ function App() {
               {/* Vacancies CRUD */}
               <Route path="vacancies" element={<Vacancies />} />
 
+              {/* Nomzodlar */}
+              <Route path="candidates" element={<Candidates />} />
+
               {/* Nomzod arizalari */}
               <Route path="submissions" element={<ApplicationSubmissions />} />
 
               {/* Nomzod suhbatlari */}
               <Route path="interviews" element={<Interviews />} />
+
+              {/* O‘qitish Materiallari */}
+              <Route path="materials" element={<LearningMaterials />} />
+
+              {/* Sertifikatlar */}
+              <Route path="certificates" element={<Certificates />} />
+
+              {/* Tizim Sozlamalari */}
+              <Route path="settings" element={<Settings />} />
             </Route>
+
 
             {/* Default redirect */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -57,6 +76,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </ModalProvider>
       </SidebarProvider>
     </AuthProvider>
   );

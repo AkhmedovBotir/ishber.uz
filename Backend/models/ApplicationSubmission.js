@@ -78,6 +78,15 @@ const applicationSubmissionSchema = new Schema(
       type: [contactLogEntrySchema],
       default: [],
     },
+    isCandidate: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    candidatePromotedAt: {
+      type: Date,
+      default: null,
+    },
     answers: {
       type: [answerSchema],
       required: true,
@@ -90,8 +99,12 @@ const applicationSubmissionSchema = new Schema(
   }
 );
 
+applicationSubmissionSchema.index({ isCandidate: 1, createdAt: -1 });
 applicationSubmissionSchema.index({ vacancyId: 1, createdAt: -1 });
 applicationSubmissionSchema.index({ vacancyId: 1, submissionNumber: 1 });
+applicationSubmissionSchema.index({ status: 1, createdAt: -1 });
+applicationSubmissionSchema.index({ applicantPhone: 1 });
+applicationSubmissionSchema.index({ vacancyId: 1, isCandidate: 1, createdAt: -1 });
 
 const ApplicationSubmission = mongoose.model("ApplicationSubmission", applicationSubmissionSchema);
 

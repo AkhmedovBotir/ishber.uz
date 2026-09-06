@@ -86,6 +86,11 @@ async function updateAdminById(id, payload) {
 async function deleteAdminById(id) {
   validateObjectId(id);
 
+  const totalAdmins = await Admin.countDocuments();
+  if (totalAdmins <= 1) {
+    throw new HttpError(400, "Oxirgi adminni o'chirish mumkin emas! Tizimda kamida 1 ta admin bo'lishi shart.");
+  }
+
   const admin = await Admin.findByIdAndDelete(id);
   if (!admin) {
     throw new HttpError(404, "Admin not found");

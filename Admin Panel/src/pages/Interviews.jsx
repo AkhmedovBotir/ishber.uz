@@ -146,6 +146,15 @@ const Interviews = () => {
           >
             Arizalar
           </Link>
+          <Link
+            to={vacancyId ? `/dashboard/candidates?vacancyId=${vacancyId}` : '/dashboard/candidates'}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3.5 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Nomzodlar sahifasida ko‘rish
+          </Link>
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
@@ -227,7 +236,13 @@ const Interviews = () => {
                   return (
                     <tr key={row._id} className="hover:bg-gray-50/80">
                       <td className="td-cell">
-                        <p className="font-medium text-gray-900">{row.candidateName || '—'}</p>
+                        <Link
+                          to={`/dashboard/candidates?search=${encodeURIComponent(row.candidateName || row.candidatePhone || '')}`}
+                          className="font-medium text-gray-900 hover:text-blue-600 hover:underline"
+                          title="Nomzodlar sahifasida ko‘rish"
+                        >
+                          {row.candidateName || '—'}
+                        </Link>
                         <p className="font-mono text-xs text-gray-500">{row.candidatePhone || ''}</p>
                         <p className="mt-0.5 text-xs text-gray-500 sm:hidden">{formatUzDateTime(row.scheduledAt)}</p>
                       </td>
@@ -249,13 +264,24 @@ const Interviews = () => {
                         ) : null}
                       </td>
                       <td className="td-cell text-right">
-                        <button
-                          type="button"
-                          onClick={() => setDetailId(row._id)}
-                          className="rounded-lg px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50"
-                        >
-                          Batafsil
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            to={`/dashboard/candidates?search=${encodeURIComponent(row.candidatePhone || row.candidateName || '')}`}
+                            className="rounded-lg p-1.5 text-indigo-600 hover:bg-indigo-50"
+                            title="Nomzodlar sahifasida ochish"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setDetailId(row._id)}
+                            className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                          >
+                            Batafsil
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

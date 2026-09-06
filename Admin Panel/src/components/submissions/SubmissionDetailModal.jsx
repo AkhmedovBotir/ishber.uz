@@ -9,6 +9,7 @@ import {
   patchSubmissionStatus,
   patchSubmissionContact,
   postSubmissionContactNote,
+  patchSubmissionCandidate,
 } from '../../services/applicationSubmissionService.js';
 import { formatUzDateTime } from '../../utils/uzDateFormat.js';
 import {
@@ -203,6 +204,20 @@ const SubmissionDetailModal = ({
     }
   };
 
+  const handleToggleCandidate = async () => {
+    if (!data?._id) return;
+    setActionError(null);
+    setActing(true);
+    try {
+      await patchSubmissionCandidate(data._id, !data.isCandidate);
+      await refresh();
+    } catch (e) {
+      setActionError(e?.message || 'Nomzod holatini o‘zgartirishda xatolik');
+    } finally {
+      setActing(false);
+    }
+  };
+
   const handleAddNote = async () => {
     if (!data?._id) return;
     const text = noteText.trim();
@@ -299,37 +314,66 @@ const SubmissionDetailModal = ({
             </div>
 
             {!loading && data && (
-              <div className="flex shrink-0 flex-wrap gap-1 border-b border-gray-100 bg-gray-50/90 px-3 py-2 sm:px-5">
-                <button
-                  type="button"
-                  onClick={() => scrollTo('answers')}
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
-                >
-                  Javoblar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('log')}
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
-                >
-                  Aloqa jurnali
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('note')}
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
-                >
-                  Yangi yozuv
-                </button>
-                {isPending && (
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50/90 px-3 py-2 sm:px-5">
+                <div className="flex flex-wrap gap-1">
                   <button
                     type="button"
-                    onClick={() => scrollTo('status')}
-                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-blue-800 hover:bg-white hover:shadow-sm"
+                    onClick={() => scrollTo('answers')}
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
                   >
-                    Holat
+                    Javoblar
                   </button>
-                )}
+                  <button
+                    type="button"
+                    onClick={() => scrollTo('log')}
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
+                  >
+                    Aloqa jurnali
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollTo('note')}
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-white hover:shadow-sm"
+                  >
+                    Yangi yozuv
+                  </button>
+                  {isPending && (
+                    <button
+                      type="button"
+                      onClick={() => scrollTo('status')}
+                      className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-blue-800 hover:bg-white hover:shadow-sm"
+                    >
+                      Holat
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  disabled={acting}
+                  onClick={handleToggleCandidate}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
+                    data.isCandidate
+                      ? 'border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                      : 'border border-emerald-300 bg-emerald-600 text-white hover:bg-emerald-700'
+                  }`}
+                >
+                  {data.isCandidate ? (
+                    <>
+                      <svg className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Nomzod safiga olingan ✓
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                      Nomzod qilib olish
+                    </>
+                  )}
+                </button>
               </div>
             )}
 

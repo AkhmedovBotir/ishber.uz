@@ -126,7 +126,7 @@ function validate(state) {
   return null;
 }
 
-const CreateInterviewModal = ({ isOpen, onClose, vacancies, onCreated }) => {
+const CreateInterviewModal = ({ isOpen, onClose, vacancies, onCreated, initialSubmission = null }) => {
   const [form, setForm] = useState(emptyForm);
   const [submissions, setSubmissions] = useState([]);
   const [applicationQuestions, setApplicationQuestions] = useState([]);
@@ -158,11 +158,22 @@ const CreateInterviewModal = ({ isOpen, onClose, vacancies, onCreated }) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    setForm(emptyForm());
+    if (initialSubmission) {
+      setForm({
+        ...emptyForm(),
+        vacancyId: initialSubmission.vacancyId || '',
+        applicationSubmissionId: initialSubmission._id || '',
+        candidateName: initialSubmission.candidateName || '',
+        candidatePhone: initialSubmission.applicantPhone || initialSubmission.candidatePhone || '',
+        topic: initialSubmission.vacancyTitle ? `${initialSubmission.vacancyTitle} suhbati` : '',
+      });
+    } else {
+      setForm(emptyForm());
+    }
     setSubmissions([]);
     setApplicationQuestions([]);
     setError(null);
-  }, [isOpen]);
+  }, [isOpen, initialSubmission]);
 
   useEffect(() => {
     if (!isOpen || !form.vacancyId) {

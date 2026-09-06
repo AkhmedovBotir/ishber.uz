@@ -4,6 +4,34 @@
 
 import { apiRequest } from './api.js';
 
+/** @param {object} [params] */
+export const getAllSubmissions = async (params = {}) => {
+  const searchParams = new URLSearchParams();
+  if (params.vacancyId) searchParams.set('vacancyId', params.vacancyId);
+  if (params.status) searchParams.set('status', params.status);
+  if (params.isCandidate !== undefined && params.isCandidate !== null && params.isCandidate !== '') {
+    searchParams.set('isCandidate', String(params.isCandidate));
+  }
+  if (params.includeAnswers) searchParams.set('includeAnswers', 'true');
+  const qs = searchParams.toString();
+  return apiRequest(`/application-submissions${qs ? `?${qs}` : ''}`, { method: 'GET' }, true);
+};
+
+/**
+ * @param {string} id
+ * @param {boolean|null} [isCandidate]
+ */
+export const patchSubmissionCandidate = async (id, isCandidate = null) => {
+  return apiRequest(
+    `/application-submissions/${id}/candidate`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(typeof isCandidate === 'boolean' ? { isCandidate } : {}),
+    },
+    true
+  );
+};
+
 /** @param {string} vacancyId */
 export const getSubmissionsByVacancy = async (vacancyId) => {
   return apiRequest(`/application-submissions/vacancy/${vacancyId}`, { method: 'GET' }, true);

@@ -8,7 +8,9 @@
     "dev": "nodemon index.js",
     "dev:api": "nodemon index.js",
     "create-admin": "node scripts/createAdmin.js",
+    "migrate": "node scripts/migrateAndVerify.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+
   },
   "keywords": [],
   "author": "",
@@ -25,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.6.1",
     "morgan": "^1.10.1",
+    "qrcode": "^1.5.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },

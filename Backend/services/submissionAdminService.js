@@ -79,14 +79,34 @@ async function updateSubmissionStatus(id, body) {
 
   const shouldSend = sendSms !== false;
   if (shouldSend) {
-    const phone = await assertPhoneForSms(sub);
-    const title = await applicationSubmissionService.getVacancyTitleById(sub.vacancyId);
-    const num = displaySubmissionNumber(sub);
-    const message =
-      status === "accepted"
-        ? smsTemplates.buildAcceptedSms(title, num)
-        : smsTemplates.buildRejectedSms(title, num, sub.rejectionReason);
-    await eskizService.sendSMS(phone, message);
+    try {
+      const phone = await assertPhoneForSms(sub);
+      const title = await applicationSubmissionService.getVacancyTitleById(sub.vacancyId);
+      const num = displaySubmissionNumber(sub);
+      const message =
+        status === "accepted"
+          ? smsTemplates.buildAcceptedSms(title, num)
+          : smsTemplates.buildRejectedSms(title, num, sub.rejectionReason);
+      const smsResult = await eskizService.sendSMS(phone, message);
+      if (smsResult && !smsResult.success) {
+        if (!Array.isArray(sub.contactLog)) sub.contactLog = [];
+        sub.contactLog.push({
+          text: `SMS xabarnoma yuborilmadi: ${smsResult.error || "Eskiz xatoligi"}`,
+          outcome: "SMS yuborilmadi",
+          createdAt: new Date(),
+        });
+        await sub.save();
+      }
+    } catch (smsErr) {
+      console.warn("[SMS] Ariza holati yangilandi, ammo SMS yuborilmadi:", smsErr.message);
+      if (!Array.isArray(sub.contactLog)) sub.contactLog = [];
+      sub.contactLog.push({
+        text: `SMS xabarnoma yuborilmadi: ${smsErr.message}`,
+        outcome: "SMS yuborilmadi",
+        createdAt: new Date(),
+      });
+      await sub.save();
+    }
   }
 
   return getSubmissionById(id);
@@ -173,10 +193,26 @@ async function addContactNote(id, body) {
   return getSubmissionById(id);
 }
 
+async function toggleCandidatePromotion(id, isCandidateVal = null) {
+  validateObjectId(id);
+  const sub = await ApplicationSubmission.findById(id);
+  if (!sub) {
+    throw new HttpError(404, "Submission not found");
+  }
+
+  const nextVal = typeof isCandidateVal === "boolean" ? isCandidateVal : !sub.isCandidate;
+  sub.isCandidate = nextVal;
+  sub.candidatePromotedAt = nextVal ? new Date() : null;
+  await sub.save();
+
+  return getSubmissionById(id);
+}
+
 module.exports = {
   getSubmissionById,
   updateSubmissionData,
   updateSubmissionStatus,
   markContacted,
   addContactNote,
+  toggleCandidatePromotion,
 };

@@ -186,6 +186,14 @@ const Admins = () => {
               <tbody className="divide-y divide-gray-100">
                 {filtered.map((a) => {
                   const isMe = currentAdmin && currentAdmin._id === a._id;
+                  const isOnlyOneAdmin = admins.length <= 1;
+                  const cannotDelete = isMe || isOnlyOneAdmin;
+                  const deleteTitle = isMe
+                    ? "O'zingizni o'chira olmaysiz"
+                    : isOnlyOneAdmin
+                      ? "Oxirgi adminni o'chirib bo'lmaydi (kamida 1 ta admin bo'lishi shart)"
+                      : "O'chirish";
+
                   return (
                     <tr key={a._id} className="transition-colors hover:bg-gray-50">
                       <td className="td-cell whitespace-nowrap">
@@ -230,8 +238,8 @@ const Admins = () => {
                           </button>
                           <button
                             onClick={() => setDeleteTarget(a)}
-                            disabled={isMe}
-                            title={isMe ? "O'zingizni o'chira olmaysiz" : "O'chirish"}
+                            disabled={cannotDelete}
+                            title={deleteTitle}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
                           >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

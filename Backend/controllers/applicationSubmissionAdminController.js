@@ -25,10 +25,19 @@ async function addContactNote(req, res) {
   res.json(data);
 }
 
+async function toggleCandidate(req, res) {
+  const data = await submissionAdminService.toggleCandidatePromotion(
+    req.params.id,
+    req.body?.isCandidate
+  );
+  res.json(data);
+}
+
 module.exports = {
   getById,
   updateSubmissionData,
   updateStatus,
   markContacted,
   addContactNote,
+  toggleCandidate,
 };
